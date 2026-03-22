@@ -1,0 +1,15 @@
+{
+  "name": "realtime-chat-app",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.41.0",
+    "oxlint": "^0.16.0",
+    "turbo": "^2.5.0"
+  },
+  "packageManager": "pnpm@10.32.1"
+}
