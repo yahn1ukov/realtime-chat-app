@@ -1,4 +1,4 @@
-import { Role } from "@chat/shared";
+import type { Role } from "@chat/shared";
 
 export interface CreateUserPayload {
   username: string;

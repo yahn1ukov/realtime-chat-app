@@ -6,10 +6,16 @@ import type { SessionPayload } from "../types/auth.type";
 @Injectable()
 export class SessionSerializer extends PassportSerializer {
   serializeUser(user: UserEntity, done: (err: unknown, payload: SessionPayload) => void): void {
-    done(null, { id: user.id, role: user.role });
+    done(null, {
+      id: user.id,
+      role: user.role,
+    });
   }
 
   deserializeUser(payload: SessionPayload, done: (err: unknown, user: Partial<UserEntity>) => void): void {
-    done(null, { id: payload.id, role: payload.role });
+    done(null, {
+      id: payload.id,
+      role: payload.role,
+    });
   }
 }

@@ -8,12 +8,19 @@ export class SessionIOAdapter extends IoAdapter {
   constructor(
     app: INestApplicationContext,
     private readonly sessionMiddleware: RequestHandler,
+    private readonly corsOrigin: string,
   ) {
     super(app);
   }
 
   override createIOServer(port: number, options?: ServerOptions): Server {
-    const server = super.createIOServer(port, options) as Server;
+    const server = super.createIOServer(port, {
+      ...options,
+      cors: {
+        origin: this.corsOrigin,
+        credentials: true,
+      },
+    }) as Server;
 
     server.engine.use(this.sessionMiddleware);
     server.engine.use(passport.initialize());

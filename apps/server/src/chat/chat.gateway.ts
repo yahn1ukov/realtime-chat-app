@@ -4,18 +4,18 @@ import { OnEvent } from "@nestjs/event-emitter";
 import {
   ConnectedSocket,
   MessageBody,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
+  type OnGatewayConnection,
+  type OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
 import type { Request } from "express";
-import { Server, Socket } from "socket.io";
+import type { Server, Socket } from "socket.io";
 import { CurrentUser } from "src/auth/decorators/current-user.decorator";
 import { AuthGuard } from "src/auth/guards/auth.guard";
 import { ChatService } from "./chat.service";
-import type { CreateMessageRequestDto } from "./dto/message.dto";
+import { CreateChatMessageRequestDto } from "./dto/message.dto";
 import { WsRateLimitInterceptor } from "./interceptors/ws-rate-limit.interceptor";
 import type { UpdateUserStatusPayload } from "./types/chat.type";
 
@@ -24,7 +24,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  constructor(private readonly chatService: ChatService) {}
+  constructor(private readonly service: ChatService) {}
 
   async handleConnection(@ConnectedSocket() client: Socket): Promise<void> {
     const request = client.request as Request;
@@ -36,7 +36,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
-    const result = await this.chatService.addOnlineUser(user.id);
+    const result = await this.service.addOnlineUser(user.id);
     if (!result) {
       client.disconnect(true);
       return;
@@ -49,7 +49,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     if (result.isNew) {
-      this.server.emit(WS_EVENT.SYSTEM.JOINED, { username: result.user.username });
+      this.server.emit(WS_EVENT.SYSTEM.JOINED, {
+        username: result.user.username,
+        color: result.user.color,
+      });
     }
   }
 
@@ -62,12 +65,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     const sockets = await this.server.in(userId).fetchSockets();
-
     if (!sockets.length) {
-      const offlineUser = await this.chatService.removeOnlineUser(userId);
-
+      const offlineUser = await this.service.removeOnlineUser(userId);
       if (offlineUser) {
-        this.server.emit(WS_EVENT.SYSTEM.LEFT, { username: offlineUser.username });
+        this.server.emit(WS_EVENT.SYSTEM.LEFT, {
+          username: offlineUser.username,
+          color: offlineUser.color,
+        });
       }
     }
   }
@@ -86,7 +90,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @OnEvent(EVENT.USER.MUTED)
   async handleUserMuted(payload: UpdateUserStatusPayload): Promise<void> {
-    await this.chatService.updateOnlineUserMute(payload.userId, payload.status!);
+    await this.service.updateOnlineUserMute(payload.userId, payload.status!);
+
     this.server.to(payload.userId).emit(WS_EVENT.SYSTEM.MUTED, payload.status!);
   }
 
@@ -98,8 +103,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @UseGuards(AuthGuard)
   @UseInterceptors(WsRateLimitInterceptor)
   @SubscribeMessage(WS_EVENT.MESSAGE)
-  async handleMessage(@CurrentUser("id") authorId: string, @MessageBody() dto: CreateMessageRequestDto): Promise<void> {
-    const message = await this.chatService.createMessage(authorId, dto);
+  async handleMessage(
+    @CurrentUser("id") authorId: string,
+    @MessageBody() dto: CreateChatMessageRequestDto,
+  ): Promise<void> {
+    const message = await this.service.createMessage(authorId, dto);
+
     this.server.emit(WS_EVENT.MESSAGE, message);
   }
 }

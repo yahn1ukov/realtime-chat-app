@@ -3,16 +3,16 @@ import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import type { RedisClientType } from "redis";
 import { REDIS_TOKEN } from "src/cache/cache.module";
-import { UserEntity } from "src/user/user.entity";
+import { AppConfigService } from "src/config/config.service";
+import type { UserEntity } from "src/user/user.entity";
 import { UserRepository } from "src/user/user.repository";
 import { ColorHelper } from "../common/helpers/color.helper";
 import { HashHelper } from "./helpers/hash.helper";
 
-const SESSION_TTL_SECONDS = 86400;
-
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly config: AppConfigService,
     private readonly event: EventEmitter2,
     @Inject(REDIS_TOKEN) private readonly redis: RedisClientType,
     private readonly hashHelper: HashHelper,
@@ -27,7 +27,7 @@ export class AuthService {
     if (user) {
       const isPasswordMatched = await this.hashHelper.verify(user.password, password);
       if (!isPasswordMatched) {
-        throw new UnauthorizedException("Invalid credentials");
+        throw new UnauthorizedException("Invalid credentials.");
       }
 
       return user;
@@ -48,13 +48,14 @@ export class AuthService {
     const oldSessionId = await this.redis.get(key);
     if (oldSessionId && oldSessionId !== sessionId) {
       await this.redis.del(`sess:${oldSessionId}`);
+
       this.event.emit(EVENT.SESSION.REVOKED, oldSessionId);
     }
 
     await this.redis.set(key, sessionId, {
       expiration: {
         type: "EX",
-        value: SESSION_TTL_SECONDS,
+        value: this.config.session.ttl,
       },
     });
   }

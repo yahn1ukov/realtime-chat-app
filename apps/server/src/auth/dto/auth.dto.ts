@@ -1,4 +1,4 @@
-import { AuthRequestDto as IAuthRequestDto } from "@chat/shared";
+import type { AuthRequestDto as IAuthRequestDto } from "@chat/shared";
 import { IsString, Matches, MaxLength, MinLength } from "class-validator";
 
 export class AuthRequestDto implements IAuthRequestDto {
@@ -10,6 +10,5 @@ export class AuthRequestDto implements IAuthRequestDto {
 
   @IsString()
   @MinLength(6)
-  @MaxLength(100)
   password: string;
 }

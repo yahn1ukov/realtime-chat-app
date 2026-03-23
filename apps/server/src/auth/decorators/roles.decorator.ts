@@ -1,4 +1,4 @@
-import { Role } from "@chat/shared";
+import type { Role } from "@chat/shared";
 import { SetMetadata } from "@nestjs/common";
 
 export const ROLE_KEY = "role";

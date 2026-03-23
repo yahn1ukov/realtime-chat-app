@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { MessageEntity } from "./message.entity";
-import { CreateMessagePayload } from "./types/chat.type";
+import type { CreateMessagePayload } from "./types/chat.type";
 
 @Injectable()
 export class ChatRepository {
@@ -13,11 +13,11 @@ export class ChatRepository {
     return this.repository.save(message);
   }
 
-  async getAllMessages(limit: number): Promise<MessageEntity[]> {
+  async getMessages(): Promise<MessageEntity[]> {
     return this.repository.find({
       relations: { author: true },
       order: { createdAt: "DESC" },
-      take: limit,
+      take: 20,
     });
   }
 }

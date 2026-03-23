@@ -1,5 +1,5 @@
-import { Role } from "@chat/shared";
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import type { Role } from "@chat/shared";
+import { type CanActivate, type ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import type { Request } from "express";
 import { ROLE_KEY } from "../decorators/roles.decorator";

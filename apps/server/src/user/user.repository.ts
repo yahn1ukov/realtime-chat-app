@@ -1,9 +1,9 @@
-import { Role } from "@chat/shared";
+import type { Role } from "@chat/shared";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { CreateUserPayload, UpdateUserPayload } from "./types/user.type";
 import { UserEntity } from "./user.entity";
-import { CreateUserPayload, UpdateUserPayload } from "./user.type";
 
 @Injectable()
 export class UserRepository {

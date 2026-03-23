@@ -1,8 +1,11 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
+import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
 import { Strategy } from "passport-local";
 import type { UserEntity } from "src/user/user.entity";
 import { AuthService } from "../auth.service";
+import { AuthRequestDto } from "../dto/auth.dto";
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -11,6 +14,12 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(username: string, password: string): Promise<UserEntity> {
-    return this.authService.validateUser({ username, password });
+    const dto = plainToInstance(AuthRequestDto, { username, password });
+    const errors = await validate(dto);
+    if (errors.length) {
+      throw new BadRequestException(errors.flatMap((e) => Object.values(e.constraints ?? {})));
+    }
+
+    return this.authService.validateUser(dto);
   }
 }

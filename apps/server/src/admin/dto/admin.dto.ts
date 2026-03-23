@@ -1,7 +1,7 @@
-import { UpdateUserStatusRequestDto as IUpdateUserStatusRequestDto } from "@chat/shared";
+import type { UpdateUserStatusRequestDto as IUpdateUserStatusRequestDto } from "@chat/shared";
 import { IsBoolean } from "class-validator";
 
 export class UpdateUserStatusRequestDto implements IUpdateUserStatusRequestDto {
   @IsBoolean()
-  value: boolean;
+  status: boolean;
 }

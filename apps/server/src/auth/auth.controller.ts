@@ -11,14 +11,14 @@ import { LocalAuthGuard } from "./guards/local-auth.guard";
 export class AuthController {
   constructor(
     private readonly event: EventEmitter2,
-    private readonly authService: AuthService,
+    private readonly service: AuthService,
   ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post()
   @HttpCode(HttpStatus.OK)
   async auth(@Req() req: Request): Promise<void> {
-    return this.authService.createSession(req.user!.id, req.sessionID);
+    return this.service.createSession(req.user!.id, req.sessionID);
   }
 
   @UseGuards(AuthGuard)
@@ -43,7 +43,8 @@ export class AuthController {
 
     res.clearCookie("connect.sid");
 
-    await this.authService.deleteSession(userId);
+    await this.service.deleteSession(userId);
+
     this.event.emit(EVENT.USER.LOGOUT, userId);
   }
 }

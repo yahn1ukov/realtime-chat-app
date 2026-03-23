@@ -11,10 +11,10 @@ import { UserModule } from "./user/user.module";
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     AppConfigModule,
     AppDatabaseModule,
     CacheModule,
-    EventEmitterModule.forRoot(),
     CommonModule,
     UserModule,
     AdminModule,

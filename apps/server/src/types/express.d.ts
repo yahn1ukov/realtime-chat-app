@@ -1,4 +1,4 @@
-import { SessionPayload } from "src/auth/types/auth.type";
+import type { SessionPayload } from "src/auth/types/auth.type";
 
 declare global {
   namespace Express {

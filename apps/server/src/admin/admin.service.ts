@@ -1,4 +1,4 @@
-import { EVENT, ROLE } from "@chat/shared";
+import { EVENT, ROLE, type UpdateUserStatusRequestDto } from "@chat/shared";
 import { ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import type { RedisClientType } from "redis";
@@ -14,12 +14,13 @@ export class AdminService {
     private readonly userRepository: UserRepository,
   ) {}
 
-  async toggleUserBan(userId: string, isBanned: boolean): Promise<void> {
+  async toggleUserBan(userId: string, dto: UpdateUserStatusRequestDto): Promise<void> {
+    const { status: isBanned } = dto;
+
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new NotFoundException("User not found.");
     }
-
     if (user.role === ROLE.ADMIN) {
       throw new ForbiddenException("Cannot ban an admin.");
     }
@@ -29,28 +30,31 @@ export class AdminService {
     if (isBanned) {
       const sessionId = await this.redis.get(`auth:session:${userId}`);
       if (sessionId) {
-        await this.redis.del(`sess:${sessionId}`);
         await this.redis.del(`auth:session:${userId}`);
-        this.event.emit(EVENT.USER.BANNED, { userId } as UpdateUserStatusPayload);
+        await this.redis.del(`sess:${sessionId}`);
+
+        const payload: UpdateUserStatusPayload = { userId };
+
+        this.event.emit(EVENT.USER.BANNED, payload);
       }
     }
   }
 
-  async toggleUserMute(userId: string, isMuted: boolean): Promise<void> {
+  async toggleUserMute(userId: string, dto: UpdateUserStatusRequestDto): Promise<void> {
+    const { status: isMuted } = dto;
+
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new NotFoundException("User not found.");
     }
-
     if (user.role === ROLE.ADMIN) {
       throw new ForbiddenException("Cannot mute an admin.");
     }
 
     await this.userRepository.updateById(userId, { isMuted });
 
-    const sessionId = await this.redis.get(`auth:session:${userId}`);
-    if (sessionId) {
-      this.event.emit(EVENT.USER.MUTED, { userId, isMuted } as UpdateUserStatusPayload);
-    }
+    const payload: UpdateUserStatusPayload = { userId, status: isMuted };
+
+    this.event.emit(EVENT.USER.MUTED, payload);
   }
 }

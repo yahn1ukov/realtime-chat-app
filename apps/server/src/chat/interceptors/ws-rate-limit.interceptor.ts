@@ -1,16 +1,18 @@
-import { CallHandler, type ExecutionContext, Inject, Injectable, NestInterceptor } from "@nestjs/common";
+import { type CallHandler, type ExecutionContext, Inject, Injectable, type NestInterceptor } from "@nestjs/common";
 import { WsException } from "@nestjs/websockets";
 import type { Request } from "express";
 import type { RedisClientType } from "redis";
 import type { Observable } from "rxjs";
 import type { Socket } from "socket.io";
 import { REDIS_TOKEN } from "src/cache/cache.module";
-
-const RATE_LIMIT_TTL_SECONDS = 15;
+import { AppConfigService } from "src/config/config.service";
 
 @Injectable()
 export class WsRateLimitInterceptor implements NestInterceptor {
-  constructor(@Inject(REDIS_TOKEN) private readonly redis: RedisClientType) {}
+  constructor(
+    private readonly config: AppConfigService,
+    @Inject(REDIS_TOKEN) private readonly redis: RedisClientType,
+  ) {}
 
   async intercept(ctx: ExecutionContext, next: CallHandler): Promise<Observable<unknown>> {
     const client = ctx.switchToWs().getClient<Socket>();
@@ -22,7 +24,7 @@ export class WsRateLimitInterceptor implements NestInterceptor {
     const result = await this.redis.set(key, "1", {
       expiration: {
         type: "EX",
-        value: RATE_LIMIT_TTL_SECONDS,
+        value: this.config.rateLimit.ttl,
       },
       condition: "NX",
     });

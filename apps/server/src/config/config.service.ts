@@ -12,6 +12,35 @@ export class AppConfigService {
     };
   }
 
+  get rateLimit() {
+    return {
+      ttl: +this.config.get<string>("RATE_LIMIT_TTL", "15"),
+    };
+  }
+
+  get cors() {
+    return {
+      origin: this.config.get<string>("CORS_CLIENT_URL", "http://localhost:5173"),
+    };
+  }
+
+  get cookie() {
+    return {
+      httpOnly: this.config.get<string>("COOKIE_HTTP_ONLY", "true") === "true",
+      secure: this.app.isProd,
+      maxAge: this.session.ttl * 1000,
+      path: this.config.get<string>("COOKIE_PATH", "/"),
+      sameSite: this.config.get<string>("COOKIE_SAME_SITE", "lax") as "lax" | "strict" | "none",
+    };
+  }
+
+  get session() {
+    return {
+      secret: this.config.get<string>("SESSION_SECRET", "secret-key"),
+      ttl: +this.config.get<string>("SESSION_TTL", "86400"),
+    };
+  }
+
   get database() {
     return {
       host: this.config.get<string>("DB_HOST", "localhost"),
@@ -30,28 +59,6 @@ export class AppConfigService {
       },
       password: this.config.get<string>("REDIS_PASSWORD", "redis"),
       database: +this.config.get<string>("REDIS_DB", "0"),
-    };
-  }
-
-  get session() {
-    return {
-      secret: this.config.get<string>("SESSION_SECRET", "secret-key"),
-    };
-  }
-
-  get cors() {
-    return {
-      origin: this.config.get<string>("CORS_CLIENT_URL", "http://localhost:5173"),
-    };
-  }
-
-  get cookie() {
-    return {
-      httpOnly: this.config.get<string>("COOKIE_HTTP_ONLY", "true") === "true",
-      secure: this.app.isProd,
-      maxAge: +this.config.get<string>("COOKIE_MAX_AGE", "86400000"),
-      path: this.config.get<string>("COOKIE_PATH", "/"),
-      sameSite: this.config.get<string>("COOKIE_SAME_SITE", "lax") as "lax" | "strict" | "none",
     };
   }
 }

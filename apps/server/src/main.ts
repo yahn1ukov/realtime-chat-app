@@ -4,7 +4,7 @@ import { RedisStore } from "connect-redis";
 import session from "express-session";
 import passport from "passport";
 import { AppModule } from "./app.module";
-import { SessionIOAdapter } from "./auth/adapters/session.adapter";
+import { SessionIOAdapter } from "./auth/adapters/session-io.adapter";
 import { REDIS_TOKEN } from "./cache/cache.module";
 import { AppConfigService } from "./config/config.service";
 
@@ -34,7 +34,7 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  app.useWebSocketAdapter(new SessionIOAdapter(app, sessionMiddleware));
+  app.useWebSocketAdapter(new SessionIOAdapter(app, sessionMiddleware, config.cors.origin));
 
   app.useGlobalPipes(
     new ValidationPipe({

@@ -10,15 +10,15 @@ import { UpdateUserStatusRequestDto } from "./dto/admin.dto";
 @Roles(ROLE.ADMIN)
 @Controller("admin/users")
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly service: AdminService) {}
 
   @Patch(":id/ban")
   async toggleUserBan(@Param("id") userId: string, @Body() dto: UpdateUserStatusRequestDto): Promise<void> {
-    return this.adminService.toggleUserBan(userId, dto.value);
+    return this.service.toggleUserBan(userId, dto);
   }
 
   @Patch(":id/mute")
   async toggleUserMute(@Param("id") userId: string, @Body() dto: UpdateUserStatusRequestDto): Promise<void> {
-    return this.adminService.toggleUserMute(userId, dto.value);
+    return this.service.toggleUserMute(userId, dto);
   }
 }
