@@ -19,7 +19,7 @@ async function bootstrap() {
   app.enableCors({
     origin: config.cors.origin,
     credentials: true,
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PATCH"],
   });
 
   const sessionMiddleware = session({

@@ -1,4 +1,4 @@
-import { ROLE } from "@chat/shared";
+import { API_ENDPOINT, ROLE } from "@chat/shared";
 import { Body, Controller, Param, Patch, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "src/auth/guards/auth.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
@@ -8,16 +8,16 @@ import { UpdateUserStatusRequestDto } from "./dto/admin.dto";
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(ROLE.ADMIN)
-@Controller("admin/users")
+@Controller(API_ENDPOINT.ADMIN.INDEX)
 export class AdminController {
   constructor(private readonly service: AdminService) {}
 
-  @Patch(":id/ban")
+  @Patch(API_ENDPOINT.ADMIN.BAN)
   async toggleUserBan(@Param("id") userId: string, @Body() dto: UpdateUserStatusRequestDto): Promise<void> {
     return this.service.toggleUserBan(userId, dto);
   }
 
-  @Patch(":id/mute")
+  @Patch(API_ENDPOINT.ADMIN.MUTE)
   async toggleUserMute(@Param("id") userId: string, @Body() dto: UpdateUserStatusRequestDto): Promise<void> {
     return this.service.toggleUserMute(userId, dto);
   }

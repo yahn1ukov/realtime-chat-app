@@ -49,10 +49,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     if (result.isNew) {
-      this.server.emit(WS_EVENT.SYSTEM.JOINED, {
-        username: result.user.username,
-        color: result.user.color,
-      });
+      this.server.emit(WS_EVENT.SYSTEM.JOINED, result.user);
     }
   }
 
@@ -68,10 +65,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!sockets.length) {
       const offlineUser = await this.service.removeOnlineUser(userId);
       if (offlineUser) {
-        this.server.emit(WS_EVENT.SYSTEM.LEFT, {
-          username: offlineUser.username,
-          color: offlineUser.color,
-        });
+        this.server.emit(WS_EVENT.SYSTEM.LEFT, offlineUser.username);
       }
     }
   }
@@ -92,7 +86,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleUserMuted(payload: UpdateUserStatusPayload): Promise<void> {
     await this.service.updateOnlineUserMute(payload.userId, payload.status!);
 
-    this.server.to(payload.userId).emit(WS_EVENT.SYSTEM.MUTED, payload.status!);
+    this.server.emit(WS_EVENT.SYSTEM.MUTED, { userId: payload.userId, isMuted: payload.status! });
   }
 
   @OnEvent(EVENT.USER.LOGOUT)
