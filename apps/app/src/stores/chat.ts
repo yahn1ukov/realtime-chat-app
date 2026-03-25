@@ -60,6 +60,8 @@ export const useChatStore = defineStore(PINIA_STORE_KEY.CHAT, () => {
   }
 
   function connect(): void {
+    isForceDisconnected.value = false;
+
     socketStore.connect({
       onMessage(message) {
         feed.value.push({ kind: "message", data: message });
@@ -92,6 +94,11 @@ export const useChatStore = defineStore(PINIA_STORE_KEY.CHAT, () => {
 
         disconnect();
       },
+      onLogout() {
+        isForceDisconnected.value = true;
+
+        disconnect();
+      },
       onException(errorMessage) {
         wsError.value = errorMessage;
       },
@@ -103,7 +110,10 @@ export const useChatStore = defineStore(PINIA_STORE_KEY.CHAT, () => {
     onlineUsers.value = [];
     feed.value = [];
     isMuted.value = false;
-    isForceDisconnected.value = false;
+    wsError.value = null;
+  }
+
+  function clearWsError(): void {
     wsError.value = null;
   }
 
@@ -122,6 +132,7 @@ export const useChatStore = defineStore(PINIA_STORE_KEY.CHAT, () => {
     getHistory,
     connect,
     disconnect,
+    clearWsError,
     sendMessage,
   };
 });

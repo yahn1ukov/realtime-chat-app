@@ -37,10 +37,11 @@ export class AuthController {
     };
   }
 
-  @UseGuards(AuthGuard)
   @Post(API_ENDPOINT.AUTH.LOGOUT)
   @HttpCode(HttpStatus.OK)
-  async logout(@Req() req: Request, @CurrentUser("id") userId: string, @Res({ passthrough: true }) res: Response) {
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
+    const userId = req.user?.id;
+
     await new Promise<void>((resolve, reject) => {
       req.logout((error: unknown) => {
         if (error) {
@@ -59,8 +60,10 @@ export class AuthController {
 
     res.clearCookie("connect.sid");
 
-    await this.service.deleteSession(userId);
+    if (userId) {
+      await this.service.deleteSession(userId);
 
-    this.event.emit(EVENT.USER.LOGOUT, userId);
+      this.event.emit(EVENT.USER.LOGOUT, userId);
+    }
   }
 }

@@ -19,10 +19,10 @@ export class AdminService {
 
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new NotFoundException("User not found.");
+      throw new NotFoundException("User not found");
     }
     if (user.role === ROLE.ADMIN) {
-      throw new ForbiddenException("Cannot ban an admin.");
+      throw new ForbiddenException("Cannot ban an admin");
     }
 
     await this.userRepository.updateById(userId, { isBanned });
@@ -32,11 +32,11 @@ export class AdminService {
       if (sessionId) {
         await this.redis.del(`auth:session:${userId}`);
         await this.redis.del(`sess:${sessionId}`);
-
-        const payload: UpdateUserStatusPayload = { userId };
-
-        this.event.emit(EVENT.USER.BANNED, payload);
       }
+
+      const payload: UpdateUserStatusPayload = { userId };
+
+      this.event.emit(EVENT.USER.BANNED, payload);
     }
   }
 
@@ -45,10 +45,10 @@ export class AdminService {
 
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new NotFoundException("User not found.");
+      throw new NotFoundException("User not found");
     }
     if (user.role === ROLE.ADMIN) {
-      throw new ForbiddenException("Cannot mute an admin.");
+      throw new ForbiddenException("Cannot mute an admin");
     }
 
     await this.userRepository.updateById(userId, { isMuted });

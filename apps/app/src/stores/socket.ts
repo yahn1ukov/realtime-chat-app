@@ -3,7 +3,7 @@ import type { CreateChatMessageRequestDto, GetChatMessageResponseDto, GetOnlineU
 import { WS_EVENT } from "@chat/shared";
 import { defineStore } from "pinia";
 import { io, type Socket } from "socket.io-client";
-import { ref, shallowRef } from "vue";
+import { shallowRef } from "vue";
 
 export type SocketEventHandlers = {
   onMessage: (message: GetChatMessageResponseDto) => void;
@@ -12,12 +12,12 @@ export type SocketEventHandlers = {
   onMuted: (payload: { userId: string; isMuted: boolean }) => void;
   onBanned: () => void;
   onDuplicateSession: () => void;
+  onLogout: () => void;
   onException: (errorMessage: string) => void;
 };
 
 export const useSocketStore = defineStore(PINIA_STORE_KEY.SOCKET, () => {
   const socket = shallowRef<Socket | null>(null);
-  const isConnected = ref(false);
 
   function connect(handlers: SocketEventHandlers): void {
     if (socket.value?.connected) {
@@ -26,14 +26,6 @@ export const useSocketStore = defineStore(PINIA_STORE_KEY.SOCKET, () => {
 
     socket.value = io(import.meta.env.VITE_BASE_WS_URL, {
       withCredentials: true,
-    });
-
-    socket.value.on("connect", () => {
-      isConnected.value = true;
-    });
-
-    socket.value.on("disconnect", () => {
-      isConnected.value = false;
     });
 
     socket.value.on(WS_EVENT.MESSAGE, handlers.onMessage);
@@ -48,7 +40,9 @@ export const useSocketStore = defineStore(PINIA_STORE_KEY.SOCKET, () => {
 
     socket.value.on(WS_EVENT.SYSTEM.DUPLICATE_SESSION, handlers.onDuplicateSession);
 
-    socket.value.on("exception", (error: { message: string }) => {
+    socket.value.on(WS_EVENT.SYSTEM.LOGOUT, handlers.onLogout);
+
+    socket.value.on(WS_EVENT.EXCEPTION, (error: { message: string }) => {
       handlers.onException(error.message);
     });
   }
@@ -56,7 +50,6 @@ export const useSocketStore = defineStore(PINIA_STORE_KEY.SOCKET, () => {
   function disconnect(): void {
     socket.value?.disconnect();
     socket.value = null;
-    isConnected.value = false;
   }
 
   function sendMessage(dto: CreateChatMessageRequestDto): void {
@@ -64,7 +57,6 @@ export const useSocketStore = defineStore(PINIA_STORE_KEY.SOCKET, () => {
   }
 
   return {
-    isConnected,
     connect,
     disconnect,
     sendMessage,

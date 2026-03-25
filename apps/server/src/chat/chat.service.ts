@@ -73,12 +73,12 @@ export class ChatService {
   async createMessage(authorId: string, dto: CreateChatMessageRequestDto): Promise<GetChatMessageResponseDto> {
     const cachedUser = await this.redis.hGet(ONLINE_USERS_KEY, authorId);
     if (!cachedUser) {
-      throw new WsException("User session not found.");
+      throw new WsException("User session not found");
     }
 
     const onlineUser = ChatMapper.toOnlineUser(cachedUser);
     if (onlineUser.isMuted) {
-      throw new WsException("You are muted.");
+      throw new WsException("You are muted");
     }
 
     const message = await this.repository.createMessage(onlineUser.id, dto);

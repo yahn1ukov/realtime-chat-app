@@ -25,9 +25,13 @@ export class AuthService {
 
     const user = await this.userRepository.findByUsername(username);
     if (user) {
+      if (user.isBanned) {
+        throw new UnauthorizedException("You are banned");
+      }
+
       const isPasswordMatched = await this.hashHelper.verify(user.password, password);
       if (!isPasswordMatched) {
-        throw new UnauthorizedException("Invalid credentials.");
+        throw new UnauthorizedException("Invalid credentials");
       }
 
       return user;

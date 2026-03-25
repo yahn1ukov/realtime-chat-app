@@ -63,6 +63,15 @@ export const useAuthStore = defineStore(PINIA_STORE_KEY.AUTH, () => {
     }
   }
 
+  function forceLogout(): void {
+    currentUser.value = null;
+
+    fetch(`${BASE_URL}/${API_ENDPOINT.AUTH.INDEX}/${API_ENDPOINT.AUTH.LOGOUT}`, {
+      method: "POST",
+      credentials: "include",
+    }).catch(() => null);
+  }
+
   return {
     state,
     currentUser,
@@ -71,5 +80,6 @@ export const useAuthStore = defineStore(PINIA_STORE_KEY.AUTH, () => {
     getCurrentUser,
     auth,
     logout,
+    forceLogout,
   };
 });

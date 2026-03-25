@@ -30,7 +30,7 @@ export class WsRateLimitInterceptor implements NestInterceptor {
     });
     if (!result) {
       const ttl = await this.redis.ttl(key);
-      throw new WsException(`You can send a message in ${ttl} second(-s).`);
+      throw new WsException(`You can send a message in ${ttl} second(-s)`);
     }
 
     return next.handle();

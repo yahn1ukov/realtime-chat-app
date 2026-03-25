@@ -91,6 +91,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @OnEvent(EVENT.USER.LOGOUT)
   handleUserLogout(userId: string): void {
+    this.server.to(userId).emit(WS_EVENT.SYSTEM.LOGOUT);
     this.server.in(userId).disconnectSockets(true);
   }
 

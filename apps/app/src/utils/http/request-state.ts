@@ -37,7 +37,3 @@ export async function withRequestState<T = void>(
     state.value.isLoading = false;
   }
 }
-
-export function clearRequestError(state: Ref<RequestState>) {
-  state.value.error = null;
-}

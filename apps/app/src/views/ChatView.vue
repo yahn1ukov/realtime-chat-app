@@ -26,16 +26,16 @@ const { feed, onlineUsers, isMuted, isForceDisconnected, wsError } = storeToRefs
 
 watch(isForceDisconnected, (disconnected) => {
   if (disconnected) {
-    authStore.currentUser = null;
+    authStore.forceLogout();
 
     router.push({ name: ROUTE.AUTH });
   }
 });
 
 onMounted(async () => {
-  chatStore.connect();
-
   await Promise.all([chatStore.getOnlineUsers(), chatStore.getHistory()]);
+
+  chatStore.connect();
 });
 
 onUnmounted(() => {
@@ -47,11 +47,12 @@ function resetForm() {
 }
 
 function handleSend(): void {
+  chatStore.clearWsError();
+
   if (!formState.content || isMuted.value) {
     return;
   }
 
-  chatStore.wsError = null;
   chatStore.sendMessage({ content: formState.content });
   resetForm();
 }

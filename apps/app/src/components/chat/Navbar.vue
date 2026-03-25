@@ -21,6 +21,6 @@ async function handleLogout() {
   <nav class="flex items-center justify-between p-3 border-b border-gray-200">
     <Button type="button" :label="isSideOpen ? 'Hide' : 'Show'" @click="isSideOpen = !isSideOpen" />
 
-    <Button type="button" label="Logout" @click="handleLogout" />
+    <Button type="button" label="Logout" :disabled="store.state.isLoading" @click="handleLogout" />
   </nav>
 </template>
