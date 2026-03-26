@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-1 flex-col items-center justify-center gap-4 p-2">
-    <p class="text-7xl font-bold text-primary-600">404</p>
+    <span class="text-7xl font-bold text-primary-600">404</span>
 
     <h1 class="text-2xl font-semibold text-gray-800">Page not found</h1>
 

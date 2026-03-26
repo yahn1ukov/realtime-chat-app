@@ -30,7 +30,7 @@ async function handleMute(userId: string, isMuted: boolean) {
 <template>
   <li class="flex flex-col gap-0.5">
     <div class="flex justify-between items-center">
-      <span class="text-base truncate flex-1" :style="{ color: user.color }">{{ user.username }}</span>
+      <span class="truncate flex-1" :style="{ color: user.color }">{{ user.username }}</span>
       <span v-if="user.isMuted" class="text-xs text-gray-400">muted</span>
     </div>
 

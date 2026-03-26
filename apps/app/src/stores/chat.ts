@@ -68,6 +68,7 @@ export const useChatStore = defineStore(PINIA_STORE_KEY.CHAT, () => {
       },
       onJoined(user) {
         feed.value.push({ kind: "system", text: `${user.username} joined the chat` });
+
         if (!onlineUsers.value.some((u) => u.id === user.id)) {
           onlineUsers.value.push(user);
         }
@@ -79,7 +80,10 @@ export const useChatStore = defineStore(PINIA_STORE_KEY.CHAT, () => {
       },
       onMuted(payload) {
         const user = onlineUsers.value.find((u) => u.id === payload.userId);
-        if (user) user.isMuted = payload.isMuted;
+        if (user) {
+          user.isMuted = payload.isMuted;
+        }
+
         if (payload.userId === authStore.currentUser?.id) {
           isMuted.value = payload.isMuted;
         }
