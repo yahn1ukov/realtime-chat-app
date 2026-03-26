@@ -1,6 +1,36 @@
 name: realtime-chat-app
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: apps/app/Dockerfile
+      args:
+        VITE_BASE_HTTP_URL:
+        VITE_BASE_WS_URL:
+    container_name: app
+    ports:
+      - 5173:5173
+    depends_on:
+      - server
+    networks:
+      - realtime-chat-network
+
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    container_name: server
+    env_file:
+      - apps/server/.env
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - realtime-chat-network
+
   postgres:
     image: postgres:latest
     container_name: postgres
