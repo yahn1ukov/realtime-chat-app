@@ -1,8 +1,8 @@
 import { ROLE, type Role } from "@chat/shared";
 import { Exclude } from "class-transformer";
-import { MessageEntity } from "src/chat/message.entity";
-import { BaseEntity } from "src/common/entities/base.entity";
 import { Column, Entity, OneToMany } from "typeorm";
+import { MessageEntity } from "../chat/message.entity";
+import { BaseEntity } from "../common/entities/base.entity";
 
 @Entity("users")
 export class UserEntity extends BaseEntity {

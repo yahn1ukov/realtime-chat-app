@@ -1,8 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { MessageEntity } from "src/chat/message.entity";
 import { AppConfigService } from "src/config/config.service";
-import { UserEntity } from "src/user/user.entity";
 
 @Module({
   imports: [
@@ -11,8 +9,9 @@ import { UserEntity } from "src/user/user.entity";
       useFactory: (config: AppConfigService) => ({
         type: "postgres",
         ...config.database,
-        entities: [UserEntity, MessageEntity],
-        synchronize: !config.app.isProd,
+        autoLoadEntities: true,
+        migrationsRun: true,
+        migrations: [__dirname + "/migrations/*{.ts,.js}"],
       }),
     }),
   ],
